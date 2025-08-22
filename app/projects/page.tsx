@@ -1,12 +1,21 @@
 'use client'
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Header } from "@/components/header"
 import { Sidebar } from "@/components/sidebar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Progress } from "@/components/ui/progress"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { 
   Plus, 
   Search, 
@@ -20,13 +29,13 @@ import {
   Target, 
   Download,
   Edit,
-  Trash2,
   Eye,
   ChevronRight,
   Folder,
   CheckCircle,
   AlertCircle,
-  PlayCircle
+  PlayCircle,
+  X
 } from "lucide-react"
 
 export default function ProjectsPage() {
@@ -35,9 +44,13 @@ export default function ProjectsPage() {
   const [selectedStatus, setSelectedStatus] = useState("all-status")
   const [searchQuery, setSearchQuery] = useState("")
   const [timelineView, setTimelineView] = useState("all-projects")
+  const [isFloating, setIsFloating] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [selectedProject, setSelectedProject] = useState(null)
+  const [viewingProject, setViewingProject] = useState(null)
 
   // Dummy project data
-  const projects = {
+  const [projects, setProjects] = useState({
     planning: [
       {
         id: 1,
@@ -48,7 +61,16 @@ export default function ProjectsPage() {
         budget: "€150K",
         startDate: "2025-03-01",
         endDate: "2025-12-31",
-        team: 8
+        team: 8,
+        status: "Planning",
+        location: "Kampala, Uganda",
+        manager: "John Doe",
+        objectives: ["Provide clean water to 500 families", "Install 10 water pumps", "Train local maintenance teams"],
+        activities: [
+          { name: "Site survey", status: "completed", dueDate: "2025-02-15" },
+          { name: "Equipment procurement", status: "in-progress", dueDate: "2025-03-30" },
+          { name: "Installation", status: "pending", dueDate: "2025-06-15" }
+        ]
       },
       {
         id: 2,
@@ -59,7 +81,16 @@ export default function ProjectsPage() {
         budget: "€80K",
         startDate: "2025-04-01",
         endDate: "2025-11-30",
-        team: 5
+        team: 5,
+        status: "Planning",
+        location: "Mbarara, Uganda",
+        manager: "Jane Smith",
+        objectives: ["Train 200 farmers", "Improve crop yields by 30%", "Establish 5 demonstration plots"],
+        activities: [
+          { name: "Curriculum development", status: "completed", dueDate: "2025-03-15" },
+          { name: "Farmer recruitment", status: "pending", dueDate: "2025-04-01" },
+          { name: "Training sessions", status: "pending", dueDate: "2025-05-01" }
+        ]
       }
     ],
     active: [
@@ -72,7 +103,16 @@ export default function ProjectsPage() {
         budget: "€300K",
         startDate: "2024-09-01",
         endDate: "2025-06-30",
-        team: 12
+        team: 12,
+        status: "Active",
+        location: "Gulu, Uganda",
+        manager: "Sarah Johnson",
+        objectives: ["Build 20 new classrooms", "Provide furniture for 500 students", "Install solar panels"],
+        activities: [
+          { name: "Foundation work", status: "completed", dueDate: "2024-10-30" },
+          { name: "Wall construction", status: "in-progress", dueDate: "2025-03-15" },
+          { name: "Roofing", status: "pending", dueDate: "2025-05-01" }
+        ]
       },
       {
         id: 4,
@@ -83,7 +123,16 @@ export default function ProjectsPage() {
         budget: "€120K",
         startDate: "2024-08-01",
         endDate: "2025-05-31",
-        team: 6
+        team: 6,
+        status: "Active",
+        location: "Masaka, Uganda",
+        manager: "David Wilson",
+        objectives: ["Support 50 women groups", "Disburse €100K in loans", "Achieve 95% repayment rate"],
+        activities: [
+          { name: "Group formation", status: "completed", dueDate: "2024-09-30" },
+          { name: "Financial training", status: "completed", dueDate: "2024-11-30" },
+          { name: "Loan disbursement", status: "in-progress", dueDate: "2025-02-28" }
+        ]
       },
       {
         id: 5,
@@ -94,7 +143,16 @@ export default function ProjectsPage() {
         budget: "€200K",
         startDate: "2024-11-01",
         endDate: "2025-08-31",
-        team: 10
+        team: 10,
+        status: "Active",
+        location: "Mubende, Uganda",
+        manager: "Mary Brown",
+        objectives: ["Plant 10,000 trees", "Protect 500 hectares", "Train 100 community members"],
+        activities: [
+          { name: "Seedling preparation", status: "completed", dueDate: "2024-12-15" },
+          { name: "Community mobilization", status: "in-progress", dueDate: "2025-02-28" },
+          { name: "Planting activities", status: "pending", dueDate: "2025-05-30" }
+        ]
       }
     ],
     completed: [
@@ -107,7 +165,16 @@ export default function ProjectsPage() {
         budget: "€95K",
         startDate: "2024-03-01",
         endDate: "2025-01-31",
-        team: 7
+        team: 7,
+        status: "Completed",
+        location: "Jinja, Uganda",
+        manager: "Peter Davis",
+        objectives: ["Train 300 adults", "Achieve 80% literacy rate", "Establish 6 learning centers"],
+        activities: [
+          { name: "Center setup", status: "completed", dueDate: "2024-04-30" },
+          { name: "Facilitator training", status: "completed", dueDate: "2024-05-31" },
+          { name: "Literacy classes", status: "completed", dueDate: "2025-01-31" }
+        ]
       },
       {
         id: 7,
@@ -118,10 +185,20 @@ export default function ProjectsPage() {
         budget: "€180K",
         startDate: "2024-06-01",
         endDate: "2024-12-31",
-        team: 9
+        team: 9,
+        status: "Completed",
+        location: "Lira, Uganda",
+        manager: "Grace Taylor",
+        objectives: ["Install solar in 8 health centers", "Provide 24/7 power supply", "Train maintenance staff"],
+        activities: [
+          { name: "Site assessment", status: "completed", dueDate: "2024-07-15" },
+          { name: "Equipment installation", status: "completed", dueDate: "2024-11-30" },
+          { name: "Staff training", status: "completed", dueDate: "2024-12-31" }
+        ]
       }
-    ]
-  }
+    ],
+    archives: []
+  })
 
   // Dummy work plans data
   const workPlans = [
@@ -145,6 +222,18 @@ export default function ProjectsPage() {
     }
   ]
 
+  // Handle scroll for floating button
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY
+      const shouldFloat = scrollY > 50
+      setIsFloating(shouldFloat)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   // Gantt chart data
   const ganttProjects = timelineView === "active" ? projects.active : [...projects.active, ...projects.planning]
 
@@ -155,6 +244,222 @@ export default function ProjectsPage() {
       case "Completed": return <CheckCircle className="w-4 h-4 text-green-600" />
       default: return <AlertCircle className="w-4 h-4 text-gray-600" />
     }
+  }
+
+  const handleProjectAction = (action: string, project: any) => {
+    switch (action) {
+      case "view":
+        setViewingProject(project)
+        break
+      case "edit":
+        setSelectedProject(project)
+        setEditModalOpen(true)
+        break
+      case "archive":
+        // Move project to archives
+        setProjects(prev => {
+          const newProjects = { ...prev }
+          // Remove from current category
+          Object.keys(newProjects).forEach(category => {
+            if (category !== 'archives') {
+              newProjects[category] = newProjects[category].filter(p => p.id !== project.id)
+            }
+          })
+          // Add to archives
+          newProjects.archives = [...newProjects.archives, { ...project, status: 'Archived' }]
+          return newProjects
+        })
+        break
+    }
+  }
+
+  const handleEditSubmit = (updatedProject: any) => {
+    setProjects(prev => {
+      const newProjects = { ...prev }
+      Object.keys(newProjects).forEach(category => {
+        newProjects[category] = newProjects[category].map(p => 
+          p.id === updatedProject.id ? updatedProject : p
+        )
+      })
+      return newProjects
+    })
+    setEditModalOpen(false)
+    setSelectedProject(null)
+  }
+
+  // If viewing a specific project, render project details
+  if (viewingProject) {
+    return (
+      <div className="flex h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header userName="Sarah Nakato" userRole="Executive Director" />
+          <main className="flex-1 p-6 overflow-auto">
+            <div className="max-w-7xl mx-auto">
+              {/* Back button */}
+              <Button 
+                variant="outline" 
+                className="mb-6"
+                onClick={() => setViewingProject(null)}
+              >
+                ← Back to Projects
+              </Button>
+
+              {/* Project Header */}
+              <div className="mb-8">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">{viewingProject.name}</h1>
+                    <p className="text-gray-600 text-lg mb-4">{viewingProject.description}</p>
+                    <div className="flex items-center gap-4 text-sm">
+                      <span className={`px-3 py-1 rounded-full text-white ${
+                        viewingProject.status === 'Active' ? 'bg-blue-600' :
+                        viewingProject.status === 'Planning' ? 'bg-yellow-600' : 'bg-green-600'
+                      }`}>
+                        {viewingProject.status}
+                      </span>
+                      <span className="text-gray-500">Department: {viewingProject.department}</span>
+                      <span className="text-gray-500">Manager: {viewingProject.manager}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedProject(viewingProject)
+                        setEditModalOpen(true)
+                      }}
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Edit Project
+                    </Button>
+                    <Button variant="outline">
+                      <Download className="w-4 h-4 mr-2" />
+                      Export Report
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Project Overview Cards */}
+              <div className="grid grid-cols-4 gap-6 mb-8">
+                <Card>
+                  <CardContent className="p-6 text-center">
+                    <div className="text-2xl font-bold text-blue-600">{viewingProject.progress}%</div>
+                    <div className="text-sm text-gray-600">Progress</div>
+                    <Progress value={viewingProject.progress} className="mt-2" />
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-6 text-center">
+                    <div className="text-2xl font-bold text-green-600">{viewingProject.budget}</div>
+                    <div className="text-sm text-gray-600">Budget</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-6 text-center">
+                    <div className="text-2xl font-bold text-purple-600">{viewingProject.team}</div>
+                    <div className="text-sm text-gray-600">Team Members</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-6 text-center">
+                    <div className="text-2xl font-bold text-orange-600">
+                      {Math.ceil((new Date(viewingProject.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
+                    </div>
+                    <div className="text-sm text-gray-600">Days Remaining</div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Project Details */}
+              <div className="grid grid-cols-2 gap-8">
+                {/* Project Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Project Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Location</Label>
+                      <p className="text-gray-900">{viewingProject.location}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Start Date</Label>
+                      <p className="text-gray-900">{viewingProject.startDate}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">End Date</Label>
+                      <p className="text-gray-900">{viewingProject.endDate}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Project Manager</Label>
+                      <p className="text-gray-900">{viewingProject.manager}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Project Objectives */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Project Objectives</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {viewingProject.objectives.map((objective, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <Target className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                          <span className="text-gray-900">{objective}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Activities Timeline */}
+              <Card className="mt-8">
+                <CardHeader>
+                  <CardTitle>Activities Timeline</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {viewingProject.activities.map((activity, index) => (
+                      <div key={index} className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          activity.status === 'completed' ? 'bg-green-100 text-green-600' :
+                          activity.status === 'in-progress' ? 'bg-blue-100 text-blue-600' :
+                          'bg-gray-100 text-gray-600'
+                        }`}>
+                          {activity.status === 'completed' ? (
+                            <CheckCircle className="w-5 h-5" />
+                          ) : activity.status === 'in-progress' ? (
+                            <PlayCircle className="w-5 h-5" />
+                          ) : (
+                            <Clock className="w-5 h-5" />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-gray-900">{activity.name}</h4>
+                          <p className="text-sm text-gray-600">Due: {activity.dueDate}</p>
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-sm ${
+                          activity.status === 'completed' ? 'bg-green-100 text-green-700' :
+                          activity.status === 'in-progress' ? 'bg-blue-100 text-blue-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {activity.status.replace('-', ' ')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </main>
+        </div>
+      </div>
+    )
   }
 
   const renderActiveProjects = () => (
@@ -173,14 +478,14 @@ export default function ProjectsPage() {
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-2">
                     <h4 className="font-medium">{project.name}</h4>
-                    <Select>
+                    <Select onValueChange={(value) => handleProjectAction(value, project)}>
                       <SelectTrigger className="w-8 h-8 p-0 border-none">
                         <MoreHorizontal className="w-4 h-4" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="view"><Eye className="w-4 h-4 mr-2" />View</SelectItem>
                         <SelectItem value="edit"><Edit className="w-4 h-4 mr-2" />Edit</SelectItem>
-                        <SelectItem value="delete"><Trash2 className="w-4 h-4 mr-2" />Delete</SelectItem>
+                        <SelectItem value="archive"><Archive className="w-4 h-4 mr-2" />Archive</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -212,14 +517,14 @@ export default function ProjectsPage() {
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-2">
                     <h4 className="font-medium">{project.name}</h4>
-                    <Select>
+                    <Select onValueChange={(value) => handleProjectAction(value, project)}>
                       <SelectTrigger className="w-8 h-8 p-0 border-none">
                         <MoreHorizontal className="w-4 h-4" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="view"><Eye className="w-4 h-4 mr-2" />View</SelectItem>
                         <SelectItem value="edit"><Edit className="w-4 h-4 mr-2" />Edit</SelectItem>
-                        <SelectItem value="delete"><Trash2 className="w-4 h-4 mr-2" />Delete</SelectItem>
+                        <SelectItem value="archive"><Archive className="w-4 h-4 mr-2" />Archive</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -251,7 +556,7 @@ export default function ProjectsPage() {
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-2">
                     <h4 className="font-medium">{project.name}</h4>
-                    <Select>
+                    <Select onValueChange={(value) => handleProjectAction(value, project)}>
                       <SelectTrigger className="w-8 h-8 p-0 border-none">
                         <MoreHorizontal className="w-4 h-4" />
                       </SelectTrigger>
@@ -467,7 +772,7 @@ export default function ProjectsPage() {
       </div>
 
       <div className="grid gap-4">
-        {projects.completed.map((project) => (
+        {[...projects.completed, ...projects.archives].map((project) => (
           <Card key={project.id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
@@ -476,7 +781,7 @@ export default function ProjectsPage() {
                     <Archive className="w-4 h-4 text-gray-600" />
                     <h3 className="font-medium">{project.name}</h3>
                     <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
-                      Archived
+                      {project.status === 'Archived' ? 'Archived' : 'Completed'}
                     </span>
                   </div>
                   <p className="text-sm text-gray-600 mb-3">{project.description}</p>
@@ -500,6 +805,10 @@ export default function ProjectsPage() {
                   </div>
                 </div>
                 <div className="flex gap-2 ml-4">
+                  <Button variant="outline" size="sm" onClick={() => setViewingProject(project)}>
+                    <Eye className="w-4 h-4 mr-1" />
+                    View
+                  </Button>
                   <Button variant="outline" size="sm">
                     <FileText className="w-4 h-4 mr-1" />
                     Report
@@ -533,11 +842,24 @@ export default function ProjectsPage() {
                 <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
                 <p className="text-gray-600">Manage and monitor all organizational projects</p>
               </div>
-              <Button className="bg-gray-900 hover:bg-gray-800">
-                <Plus className="w-4 h-4 mr-2" />
-                Create Project
-              </Button>
+              {/* Regular Create Project Button */}
+              {!isFloating && (
+                <Button className="bg-gray-900 hover:bg-gray-800">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Project
+                </Button>
+              )}
             </div>
+
+            {/* Floating Create Project Button */}
+            <Button 
+              className={`fixed bottom-6 right-6 bg-gray-900 hover:bg-gray-800 shadow-2xl z-50 h-14 px-6 rounded-full transition-all duration-300 ease-in-out ${
+                isFloating ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16 pointer-events-none'
+              }`}
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Create Project
+            </Button>
 
             {/* Tabs */}
             <div className="flex gap-6 mb-6 border-b">
@@ -615,6 +937,153 @@ export default function ProjectsPage() {
           </div>
         </main>
       </div>
+
+      {/* Edit Project Modal */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Project</DialogTitle>
+          </DialogHeader>
+          {selectedProject && (
+            <EditProjectForm 
+              project={selectedProject}
+              onSubmit={handleEditSubmit}
+              onCancel={() => {
+                setEditModalOpen(false)
+                setSelectedProject(null)
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
+  )
+}
+
+// Edit Project Form Component
+function EditProjectForm({ project, onSubmit, onCancel }) {
+  const [formData, setFormData] = useState({
+    name: project.name,
+    description: project.description,
+    department: project.department,
+    budget: project.budget,
+    startDate: project.startDate,
+    endDate: project.endDate,
+    manager: project.manager,
+    location: project.location,
+    progress: project.progress
+  })
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    onSubmit({ ...project, ...formData })
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="name">Project Name</Label>
+          <Input
+            id="name"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="department">Department</Label>
+          <Select value={formData.department} onValueChange={(value) => setFormData({ ...formData, department: value })}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Education">Education</SelectItem>
+              <SelectItem value="Livelihood">Livelihood</SelectItem>
+              <SelectItem value="Nature Resources">Nature Resources</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          rows={3}
+        />
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        <div>
+          <Label htmlFor="budget">Budget</Label>
+          <Input
+            id="budget"
+            value={formData.budget}
+            onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+          />
+        </div>
+        <div>
+          <Label htmlFor="startDate">Start Date</Label>
+          <Input
+            id="startDate"
+            type="date"
+            value={formData.startDate}
+            onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+          />
+        </div>
+        <div>
+          <Label htmlFor="endDate">End Date</Label>
+          <Input
+            id="endDate"
+            type="date"
+            value={formData.endDate}
+            onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="manager">Project Manager</Label>
+          <Input
+            id="manager"
+            value={formData.manager}
+            onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
+          />
+        </div>
+        <div>
+          <Label htmlFor="location">Location</Label>
+          <Input
+            id="location"
+            value={formData.location}
+            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="progress">Progress (%)</Label>
+        <Input
+          id="progress"
+          type="number"
+          min="0"
+          max="100"
+          value={formData.progress}
+          onChange={(e) => setFormData({ ...formData, progress: parseInt(e.target.value) })}
+        />
+      </div>
+
+      <div className="flex justify-end gap-4">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="submit">
+          Save Changes
+        </Button>
+      </div>
+    </form>
   )
 }

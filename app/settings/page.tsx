@@ -15,38 +15,31 @@ import {
   Settings, 
   Users, 
   Shield, 
-  Bell, 
-  Database, 
-  Lock, 
-  CheckCircle,
+  User,
+  FileText,
   Plus,
   Edit,
   Trash2,
-  Mail,
-  Phone,
-  Globe,
-  Calendar,
-  Clock,
-  Key,
   Eye,
   EyeOff,
-  AlertTriangle,
-  RefreshCw,
-  Upload,
   X,
-  Check,
   UserPlus,
-  UserMinus,
-  FileText,
-  HardDrive,
-  Wifi,
-  WifiOff
+  Copy,
+  Search,
+  Filter,
+  Calendar,
+  BookOpen,
+  Layout,
+  MoreHorizontal,
+  Upload
 } from "lucide-react"
 
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState("organization")
   const [showPasswordFields, setShowPasswordFields] = useState(false)
   const [showAddUserModal, setShowAddUserModal] = useState(false)
+  const [showTemplateModal, setShowTemplateModal] = useState(false)
+  const [searchTemplates, setSearchTemplates] = useState("")
   const [settings, setSettings] = useState({
     organization: {
       name: "Kagera Civil Society Organizations Network",
@@ -66,28 +59,18 @@ export default function SettingsPage() {
       numberFormat: "comma",
       fiscalYear: "jan-dec"
     },
-    system: {
-      autoSave: true,
-      offlineMode: true,
+    profile: {
+      name: "John Mukisa",
+      email: "john.mukisa@kcson.org",
+      phone: "+256 701 234567",
+      position: "M&E Officer",
+      department: "M&E",
+      joinDate: "2023-01-15",
+      profilePhoto: null,
       emailNotifications: true,
-      dataValidation: true,
-      autoBackup: false,
-      sessionTimeout: 30
-    },
-    notifications: {
-      email: true,
-      sms: false,
-      inApp: true,
-      reportReminders: true,
-      deadlineAlerts: true,
-      dataQualityAlerts: true
-    },
-    security: {
-      twoFactorAuth: false,
-      passwordComplexity: true,
-      sessionSecurity: true,
-      ipRestriction: false,
-      loginAttempts: 5
+      smsNotifications: false,
+      theme: "light",
+      language: "english"
     }
   })
 
@@ -131,6 +114,65 @@ export default function SettingsPage() {
     }
   ])
 
+  // Templates data
+  const [templates, setTemplates] = useState([
+    {
+      id: 1,
+      name: "Water Access Project Report",
+      category: "Nature Resources",
+      type: "Project Report",
+      description: "Standard report template for water access initiatives",
+      usageCount: 12,
+      lastUsed: "2025-01-18",
+      createdBy: "John Mukisa",
+      status: "Active"
+    },
+    {
+      id: 2,
+      name: "Education Impact Assessment",
+      category: "Education",
+      type: "Assessment Form",
+      description: "Template for measuring educational project impact",
+      usageCount: 8,
+      lastUsed: "2025-01-15",
+      createdBy: "Sarah Nakato",
+      status: "Active"
+    },
+    {
+      id: 3,
+      name: "Livelihood Training Evaluation",
+      category: "Livelihood",
+      type: "Evaluation Form",
+      description: "Post-training evaluation template for livelihood programs",
+      usageCount: 15,
+      lastUsed: "2025-01-20",
+      createdBy: "Mary Nassanga",
+      status: "Active"
+    },
+    {
+      id: 4,
+      name: "Monthly Financial Report",
+      category: "Finance",
+      type: "Financial Report",
+      description: "Standard monthly financial reporting template",
+      usageCount: 24,
+      lastUsed: "2025-01-19",
+      createdBy: "James Okello",
+      status: "Active"
+    },
+    {
+      id: 5,
+      name: "Beneficiary Registration",
+      category: "General",
+      type: "Registration Form",
+      description: "Standard form for new beneficiary registration",
+      usageCount: 45,
+      lastUsed: "2025-01-20",
+      createdBy: "John Mukisa",
+      status: "Active"
+    }
+  ])
+
   const saveSettings = () => {
     // Simulate saving settings
     console.log("Saving settings:", settings)
@@ -150,9 +192,9 @@ export default function SettingsPage() {
     // Create exportable settings data
     const exportData = {
       organization: settings.organization,
-      system: settings.system,
       regional: settings.regional,
       users: users.length,
+      templates: templates.length,
       exportDate: new Date().toISOString(),
       version: "1.0"
     }
@@ -179,14 +221,35 @@ export default function SettingsPage() {
     }))
   }
 
+  const handleTemplateAction = (action: string, template: any) => {
+    switch (action) {
+      case "view":
+        console.log("Viewing template:", template.id)
+        break
+      case "edit":
+        console.log("Editing template:", template.id)
+        break
+      case "duplicate":
+        console.log("Duplicating template:", template.id)
+        break
+      case "delete":
+        console.log("Deleting template:", template.id)
+        break
+    }
+  }
+
+  const filteredTemplates = templates.filter(template =>
+    template.name.toLowerCase().includes(searchTemplates.toLowerCase()) ||
+    template.category.toLowerCase().includes(searchTemplates.toLowerCase()) ||
+    template.type.toLowerCase().includes(searchTemplates.toLowerCase())
+  )
+
   const sections = [
     { id: "organization", label: "Organization", icon: Settings },
     { id: "users", label: "Users & Roles", icon: Users },
     { id: "permissions", label: "Permissions", icon: Shield },
-    { id: "notifications", label: "Notifications", icon: Bell },
-    { id: "data", label: "Data & Backup", icon: Database },
-    { id: "system", label: "System", icon: Settings },
-    { id: "security", label: "Security", icon: Lock }
+    { id: "profile", label: "Profile", icon: User },
+    { id: "templates", label: "Templates", icon: FileText }
   ]
 
   const renderOrganizationSettings = () => (
@@ -431,8 +494,142 @@ export default function SettingsPage() {
     </div>
   )
 
-  const renderNotificationsSettings = () => (
+  const renderProfileSettings = () => (
     <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Personal Information</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
+              <User className="w-8 h-8 text-gray-400" />
+            </div>
+            <div>
+              <Button variant="outline" size="sm">
+                <Upload className="w-4 h-4 mr-2" />
+                Upload Photo
+              </Button>
+              <p className="text-xs text-gray-500 mt-1">JPG, PNG up to 5MB</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Full Name</label>
+              <Input 
+                value={settings.profile.name}
+                onChange={(e) => updateSetting('profile', 'name', e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Email Address</label>
+              <Input 
+                type="email"
+                value={settings.profile.email}
+                onChange={(e) => updateSetting('profile', 'email', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Phone Number</label>
+              <Input 
+                value={settings.profile.phone}
+                onChange={(e) => updateSetting('profile', 'phone', e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Position</label>
+              <Input 
+                value={settings.profile.position}
+                onChange={(e) => updateSetting('profile', 'position', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Department</label>
+              <Select value={settings.profile.department} onValueChange={(value) => updateSetting('profile', 'department', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="me">M&E</SelectItem>
+                  <SelectItem value="finance">Finance</SelectItem>
+                  <SelectItem value="projects">Projects</SelectItem>
+                  <SelectItem value="management">Management</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Language Preference</label>
+              <Select value={settings.profile.language} onValueChange={(value) => updateSetting('profile', 'language', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="english">English</SelectItem>
+                  <SelectItem value="swahili">Swahili</SelectItem>
+                  <SelectItem value="luganda">Luganda</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Password & Security</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Change Password</p>
+              <p className="text-sm text-gray-500">Update your account password</p>
+            </div>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowPasswordFields(!showPasswordFields)}
+            >
+              Change Password
+            </Button>
+          </div>
+
+          {showPasswordFields && (
+            <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Current Password</label>
+                <div className="relative">
+                  <Input type="password" placeholder="Enter current password" />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">New Password</label>
+                <Input type="password" placeholder="Enter new password" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Confirm New Password</label>
+                <Input type="password" placeholder="Confirm new password" />
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm">Update Password</Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setShowPasswordFields(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>Notification Preferences</CardTitle>
@@ -441,372 +638,146 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium">Email Notifications</p>
-              <p className="text-sm text-gray-500">Receive notifications via email</p>
+              <p className="text-sm text-gray-500">Receive updates via email</p>
             </div>
             <Switch 
-              checked={settings.notifications.email}
-              onCheckedChange={(checked) => updateSetting('notifications', 'email', checked)}
+              checked={settings.profile.emailNotifications}
+              onCheckedChange={(checked) => updateSetting('profile', 'emailNotifications', checked)}
             />
           </div>
 
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium">SMS Notifications</p>
-              <p className="text-sm text-gray-500">Receive notifications via SMS</p>
+              <p className="text-sm text-gray-500">Receive updates via SMS</p>
             </div>
             <Switch 
-              checked={settings.notifications.sms}
-              onCheckedChange={(checked) => updateSetting('notifications', 'sms', checked)}
+              checked={settings.profile.smsNotifications}
+              onCheckedChange={(checked) => updateSetting('profile', 'smsNotifications', checked)}
             />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">In-App Notifications</p>
-              <p className="text-sm text-gray-500">Show notifications within the application</p>
-            </div>
-            <Switch 
-              checked={settings.notifications.inApp}
-              onCheckedChange={(checked) => updateSetting('notifications', 'inApp', checked)}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Report Reminders</p>
-              <p className="text-sm text-gray-500">Reminders for upcoming report deadlines</p>
-            </div>
-            <Switch 
-              checked={settings.notifications.reportReminders}
-              onCheckedChange={(checked) => updateSetting('notifications', 'reportReminders', checked)}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Data Quality Alerts</p>
-              <p className="text-sm text-gray-500">Alerts for data quality issues</p>
-            </div>
-            <Switch 
-              checked={settings.notifications.dataQualityAlerts}
-              onCheckedChange={(checked) => updateSetting('notifications', 'dataQualityAlerts', checked)}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Email Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">SMTP Server</label>
-              <Input defaultValue="smtp.gmail.com" />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Port</label>
-              <Input defaultValue="587" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Username</label>
-              <Input defaultValue="notifications@kcson.org" />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Password</label>
-              <Input type="password" placeholder="••••••••" />
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox defaultChecked />
-            <label className="text-sm">Use TLS encryption</label>
           </div>
         </CardContent>
       </Card>
     </div>
   )
 
-  const renderDataBackupSettings = () => (
+  const renderTemplatesSettings = () => (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Backup Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Automatic Backups</p>
-              <p className="text-sm text-gray-500">Schedule automatic data backups</p>
-            </div>
-            <Switch 
-              checked={settings.system.autoBackup}
-              onCheckedChange={(checked) => updateSetting('system', 'autoBackup', checked)}
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Backup Frequency</label>
-            <Select defaultValue="daily">
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="hourly">Hourly</SelectItem>
-                <SelectItem value="daily">Daily</SelectItem>
-                <SelectItem value="weekly">Weekly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Backup Storage Location</label>
-            <Select defaultValue="cloud">
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="local">Local Server</SelectItem>
-                <SelectItem value="cloud">Cloud Storage</SelectItem>
-                <SelectItem value="both">Both Local and Cloud</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex gap-3 pt-4">
-            <Button>
-              <Download className="w-4 h-4 mr-2" />
-              Create Backup Now
-            </Button>
-            <Button variant="outline">
-              <Upload className="w-4 h-4 mr-2" />
-              Restore from Backup
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Data Storage</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex items-center gap-3">
-                <HardDrive className="w-5 h-5 text-blue-600" />
-                <div>
-                  <p className="font-medium">Database Size</p>
-                  <p className="text-sm text-gray-500">Current usage: 2.4 GB</p>
-                </div>
+          <CardTitle className="flex items-center justify-between">
+            Templates Library
+            <div className="flex gap-2">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Input 
+                  placeholder="Search templates..." 
+                  className="pl-10 w-64" 
+                  value={searchTemplates}
+                  onChange={(e) => setSearchTemplates(e.target.value)}
+                />
               </div>
-              <div className="text-right">
-                <p className="text-sm font-medium">75% Used</p>
-                <div className="w-24 h-2 bg-gray-200 rounded-full mt-1">
-                  <div className="w-3/4 h-2 bg-blue-600 rounded-full"></div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex items-center gap-3">
-                <FileText className="w-5 h-5 text-green-600" />
-                <div>
-                  <p className="font-medium">Document Storage</p>
-                  <p className="text-sm text-gray-500">Reports and files: 856 MB</p>
-                </div>
-              </div>
-              <Button variant="outline" size="sm">
-                <Eye className="w-4 h-4 mr-1" />
-                View Details
+              <Button onClick={() => setShowTemplateModal(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Template
               </Button>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
-
-  const renderSystemSettings = () => (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>System Preferences</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Auto-save Forms</p>
-              <p className="text-sm text-gray-500">Automatically save form data every 30 seconds</p>
-            </div>
-            <Switch 
-              checked={settings.system.autoSave}
-              onCheckedChange={(checked) => updateSetting('system', 'autoSave', checked)}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Offline Mode</p>
-              <p className="text-sm text-gray-500">Enable offline data collection and sync</p>
-            </div>
-            <Switch 
-              checked={settings.system.offlineMode}
-              onCheckedChange={(checked) => updateSetting('system', 'offlineMode', checked)}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Data Validation</p>
-              <p className="text-sm text-gray-500">Strict validation for data entry forms</p>
-            </div>
-            <Switch 
-              checked={settings.system.dataValidation}
-              onCheckedChange={(checked) => updateSetting('system', 'dataValidation', checked)}
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Session Timeout (minutes)</label>
-            <Input 
-              type="number"
-              value={settings.system.sessionTimeout}
-              onChange={(e) => updateSetting('system', 'sessionTimeout', parseInt(e.target.value))}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Performance Settings</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Items per Page</label>
-            <Select defaultValue="25">
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="100">100</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Cache Optimization</p>
-              <p className="text-sm text-gray-500">Enable browser caching for better performance</p>
-            </div>
-            <Switch defaultChecked />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
-
-  const renderSecuritySettings = () => (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Authentication Settings</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Two-Factor Authentication</p>
-              <p className="text-sm text-gray-500">Require 2FA for all user logins</p>
-            </div>
-            <Switch 
-              checked={settings.security.twoFactorAuth}
-              onCheckedChange={(checked) => updateSetting('security', 'twoFactorAuth', checked)}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Password Complexity</p>
-              <p className="text-sm text-gray-500">Enforce strong password requirements</p>
-            </div>
-            <Switch 
-              checked={settings.security.passwordComplexity}
-              onCheckedChange={(checked) => updateSetting('security', 'passwordComplexity', checked)}
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Maximum Login Attempts</label>
-            <Input 
-              type="number"
-              value={settings.security.loginAttempts}
-              onChange={(e) => updateSetting('security', 'loginAttempts', parseInt(e.target.value))}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">IP Address Restrictions</p>
-              <p className="text-sm text-gray-500">Limit access to specific IP addresses</p>
-            </div>
-            <Switch 
-              checked={settings.security.ipRestriction}
-              onCheckedChange={(checked) => updateSetting('security', 'ipRestriction', checked)}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Security Audit</CardTitle>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+            <div className="grid grid-cols-8 gap-4 text-sm font-medium text-gray-500 border-b pb-2">
+              <div className="col-span-2">Template Name</div>
+              <span>Category</span>
+              <span>Type</span>
+              <span>Usage</span>
+              <span>Last Used</span>
+              <span>Created By</span>
+              <span>Actions</span>
+            </div>
+            
+            {filteredTemplates.map((template) => (
+              <div key={template.id} className="grid grid-cols-8 gap-4 text-sm py-3 border-b hover:bg-gray-50 items-center">
+                <div className="col-span-2">
+                  <p className="font-medium">{template.name}</p>
+                  <p className="text-xs text-gray-500 mt-1">{template.description}</p>
+                </div>
+                <span className="text-gray-700">{template.category}</span>
+                <span className="text-gray-700">{template.type}</span>
+                <span className="text-blue-600">{template.usageCount} times</span>
+                <span className="text-gray-700">{template.lastUsed}</span>
+                <span className="text-gray-700">{template.createdBy}</span>
                 <div>
-                  <p className="font-medium">Password Policy</p>
-                  <p className="text-sm text-gray-500">All users comply with password requirements</p>
+                  <Select onValueChange={(value) => handleTemplateAction(value, template)}>
+                    <SelectTrigger className="w-8 h-8 p-0 border-none hover:bg-gray-100">
+                      <MoreHorizontal className="w-4 h-4" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="view">
+                        <div className="flex items-center">
+                          <Eye className="w-4 h-4 mr-2" />
+                          View
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="edit">
+                        <div className="flex items-center">
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="duplicate">
+                        <div className="flex items-center">
+                          <Copy className="w-4 h-4 mr-2" />
+                          Duplicate
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="delete">
+                        <div className="flex items-center">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
-              <span className="text-sm text-green-600">Passed</span>
-            </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="w-5 h-5 text-yellow-600" />
-                <div>
-                  <p className="font-medium">Session Security</p>
-                  <p className="text-sm text-gray-500">3 users with extended sessions</p>
+      <Card>
+        <CardHeader>
+          <CardTitle>Template Categories</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-3 gap-4">
+            {['Education', 'Livelihood', 'Nature Resources', 'Finance', 'General'].map((category) => {
+              const categoryTemplates = templates.filter(t => t.category === category)
+              return (
+                <div key={category} className="p-4 border rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Layout className="w-4 h-4 text-blue-600" />
+                    <h4 className="font-medium">{category}</h4>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {categoryTemplates.length} templates
+                  </p>
+                  <div className="space-y-1">
+                    {categoryTemplates.slice(0, 3).map((template) => (
+                      <p key={template.id} className="text-xs text-gray-500 truncate">
+                        • {template.name}
+                      </p>
+                    ))}
+                    {categoryTemplates.length > 3 && (
+                      <p className="text-xs text-gray-400">
+                        +{categoryTemplates.length - 3} more
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <span className="text-sm text-yellow-600">Warning</span>
-            </div>
-
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <div>
-                  <p className="font-medium">Data Encryption</p>
-                  <p className="text-sm text-gray-500">All sensitive data properly encrypted</p>
-                </div>
-              </div>
-              <span className="text-sm text-green-600">Passed</span>
-            </div>
-
-            <Button className="w-full" variant="outline">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Run Security Scan
-            </Button>
+              )
+            })}
           </div>
         </CardContent>
       </Card>
@@ -818,10 +789,8 @@ export default function SettingsPage() {
       case "organization": return renderOrganizationSettings()
       case "users": return renderUsersSettings()
       case "permissions": return renderPermissionsSettings()
-      case "notifications": return renderNotificationsSettings()
-      case "data": return renderDataBackupSettings()
-      case "system": return renderSystemSettings()
-      case "security": return renderSecuritySettings()
+      case "profile": return renderProfileSettings()
+      case "templates": return renderTemplatesSettings()
       default: return renderOrganizationSettings()
     }
   }
@@ -943,6 +912,84 @@ export default function SettingsPage() {
               <Button className="flex-1" onClick={() => setShowAddUserModal(false)}>
                 <UserPlus className="w-4 h-4 mr-2" />
                 Add User
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Template Modal */}
+      {showTemplateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Create New Template</h3>
+              <Button variant="ghost" size="sm" onClick={() => setShowTemplateModal(false)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Template Name</label>
+                  <Input placeholder="Enter template name" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Category</label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="education">Education</SelectItem>
+                      <SelectItem value="livelihood">Livelihood</SelectItem>
+                      <SelectItem value="nature">Nature Resources</SelectItem>
+                      <SelectItem value="finance">Finance</SelectItem>
+                      <SelectItem value="general">General</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Template Type</label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="report">Report</SelectItem>
+                      <SelectItem value="form">Form</SelectItem>
+                      <SelectItem value="assessment">Assessment</SelectItem>
+                      <SelectItem value="evaluation">Evaluation</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Based On</label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Start from scratch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="scratch">Start from scratch</SelectItem>
+                      <SelectItem value="existing">Copy existing template</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <Textarea placeholder="Describe the template purpose and usage..." rows={3} />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <Button variant="outline" className="flex-1" onClick={() => setShowTemplateModal(false)}>
+                Cancel
+              </Button>
+              <Button className="flex-1" onClick={() => setShowTemplateModal(false)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Template
               </Button>
             </div>
           </div>

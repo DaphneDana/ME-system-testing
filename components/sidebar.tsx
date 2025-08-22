@@ -29,53 +29,53 @@ const navigation = [
   { name: "Help", href: "/help", icon: HelpCircle },
 ]
 
-const settingsSubNav = [
-  { name: "Organization", href: "/settings" },
-  { name: "Users", href: "/settings/users" },
-  { name: "Permissions", href: "/settings/permissions" },
-  { name: "Integrations", href: "/settings/integrations" },
-  { name: "System", href: "/settings/system" },
-]
+// const settingsSubNav = [
+//   { name: "Organization", href: "/settings" },
+//   { name: "Users", href: "/settings/users" },
+//   { name: "Permissions", href: "/settings/permissions" },
+//   { name: "Integrations", href: "/settings/integrations" },
+//   { name: "System", href: "/settings/system" },
+// ]
 
-const financeSubNav = [
-  { name: "Transactions", href: "/finance" },
-  { name: "Budgets", href: "/finance/budgets" },
-  { name: "Reports", href: "/finance/reports" },
-  { name: "Reconciliation", href: "/finance/reconciliation" },
-]
+// const financeSubNav = [
+//   { name: "Transactions", href: "/finance" },
+//   { name: "Budgets", href: "/finance/budgets" },
+//   { name: "Reports", href: "/finance/reports" },
+//   { name: "Reconciliation", href: "/finance/reconciliation" },
+// ]
 
-const meSubNav = [
-  { name: "Indicators", href: "/me" },
-  { name: "Activities", href: "/me/activities" },
-  { name: "Surveys", href: "/me/surveys" },
-  { name: "Learning Hub", href: "/me/learning" },
-]
+// const meSubNav = [
+//   { name: "Indicators", href: "/me" },
+//   { name: "Activities", href: "/me/activities" },
+//   { name: "Surveys", href: "/me/surveys" },
+//   { name: "Learning Hub", href: "/me/learning" },
+// ]
 
-const beneficiariesSubNav = [
-  { name: "Registry", href: "/beneficiaries" },
-  { name: "Import", href: "/beneficiaries/import" },
-  { name: "Services", href: "/beneficiaries/services" },
-]
+// const beneficiariesSubNav = [
+//   { name: "Registry", href: "/beneficiaries" },
+//   { name: "Import", href: "/beneficiaries/import" },
+//   { name: "Services", href: "/beneficiaries/services" },
+// ]
 
-const reportsSubNav = [
-  { name: "Generate", href: "/reports" },
-  { name: "Templates", href: "/reports/templates" },
-  { name: "Scheduled", href: "/reports/scheduled" },
-  { name: "Archives", href: "/reports/archives" },
-]
+// const reportsSubNav = [
+//   { name: "Generate", href: "/reports" },
+//   { name: "Templates", href: "/reports/templates" },
+//   { name: "Scheduled", href: "/reports/scheduled" },
+//   { name: "Archives", href: "/reports/archives" },
+// ]
 
 export function Sidebar() {
   const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = useState(false)
 
-  const getSubNav = (href) => {
-    if (href === "/settings") return settingsSubNav
-    if (href === "/finance") return financeSubNav
-    if (href === "/me") return meSubNav
-    if (href === "/beneficiaries") return beneficiariesSubNav
-    if (href === "/reports") return reportsSubNav
-    return []
-  }
+  // const getSubNav = (href) => {
+  //   // if (href === "/settings") return settingsSubNav
+  //   // if (href === "/finance") return financeSubNav
+  //   // if (href === "/me") return meSubNav
+  //   // if (href === "/beneficiaries") return beneficiariesSubNav
+  //   // if (href === "/reports") return reportsSubNav
+  //   return []
+  // }
 
   const handleLogout = () => {
     // Clear any stored user data/tokens here if needed
@@ -116,8 +116,8 @@ export function Sidebar() {
         <div className="space-y-2">
           {navigation.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
-            const subNav = getSubNav(item.href)
-            const hasSubNav = subNav.length > 0
+            // const subNav = getSubNav(item.href)
+            // const hasSubNav = subNav.length > 0
 
             return (
               <div key={item.name}>
@@ -136,7 +136,7 @@ export function Sidebar() {
                     </div>
                   )}
                 </Link>
-                {hasSubNav && isActive && !isCollapsed && (
+                {/* {hasSubNav && isActive && !isCollapsed && (
                   <div className="ml-6 mt-1 space-y-1">
                     {subNav.map((subItem) => (
                       <Link
@@ -148,7 +148,7 @@ export function Sidebar() {
                       </Link>
                     ))}
                   </div>
-                )}
+                )} */}
               </div>
             )
           })}

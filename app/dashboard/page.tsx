@@ -1,3 +1,6 @@
+"use client"
+
+import React from "react"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -5,7 +8,7 @@ import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { AlertTriangle, Users, FileText, Activity, BarChart3, Plus } from "lucide-react"
+import { Users, FileText, Activity, BarChart3, Plus } from "lucide-react"
 import { Sidebar } from "@/components/sidebar"
 
 export default function Dashboard() {
@@ -26,36 +29,6 @@ export default function Dashboard() {
                 <p className="text-gray-600">Monitor activities, track indicators, and manage data quality</p>
               </div>
             </div>
-
-            {/* Data Quality Alerts */}
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  Data Quality Alerts
-                  <span className="text-sm font-normal text-gray-500">4 issues</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <AlertTriangle className="w-5 h-5 text-yellow-600" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Missing beneficiary data in Water Project - 12 records</p>
-                  </div>
-                  <Button variant="outline" size="sm">
-                    Review
-                  </Button>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <AlertTriangle className="w-5 h-5 text-yellow-600" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Duplicate entries detected in Education survey</p>
-                  </div>
-                  <Button variant="outline" size="sm">
-                    Fix
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Statistics Cards */}
             <div className="grid grid-cols-4 gap-6 mb-6">
